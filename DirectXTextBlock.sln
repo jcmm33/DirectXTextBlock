@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4A3E73
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2E4B57E2-2C8C-47CB-975F-B7DDDD676F62}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\Capture.JPG = ..\..\..\Desktop\Capture.JPG
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
