@@ -14,12 +14,11 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <StackPanel Background="White" Grid.Row="0">
-        <DirectXTextBlockControl:DirectXTextBlock Text="{Binding Text,ElementName=TextInput}" FontSize="24" Foreground="White" ShadowOffset="{Binding Value,ElementName=ShadowOffset}">
-            </DirectXTextBlockControl:DirectXTextBlock>
 
-        <TextBlock Text="{Binding Text,ElementName=TextInput}" FontSize="24" Foreground="White"></TextBlock>
+        <StackPanel Background="White" Grid.Row="0" Width="266" HorizontalAlignment="Left">
+            <DirectXTextBlockControl:DirectXTextBlock Text="{Binding Text,ElementName=TextInput}" FontSize="24" Foreground="White" ShadowOffset="{Binding Value,ElementName=ShadowOffset}" TextWrapping="Wrap"/>
         </StackPanel>
+        
         <StackPanel Background="Black" Grid.Row="1">
             <TextBlock TextWrapping="WrapWholeWords" Margin="20,20,20,5">
                 A simple concept example for DirectX rendered text in WP8.1.  Above two text boxes have text set to be white on a white background.
@@ -34,7 +33,7 @@
                 Originally constructed with SharpDx it may be possible to now port to Win2D. Similarly i'm sure DirectX experts could improve this considerably.
             </TextBlock>
 
-            <TextBox x:Name="TextInput" Text="This is some text"></TextBox>
+            <TextBox x:Name="TextInput" Text="This is some text which is used as a test"></TextBox>
             <Slider x:Name="ShadowOffset" Value="2" Minimum="0" Maximum="20"></Slider>
         </StackPanel>
 

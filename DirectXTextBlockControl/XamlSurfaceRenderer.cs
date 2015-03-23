@@ -132,9 +132,11 @@ namespace DirectXTextBlockControl
 
                             //_renderer.BeginDraw(Context, updateRect);
 
-                            // need to adjust the offset for Dips
+                            // 23/03/2015 - need to adjust the pixel offset to Dips
 
-                            var renderContext = new RenderContext(Context, pixelOffset, updateRect);
+                            Point dipsOffset = new Point(Context.ConvertPixelsToDips(pixelOffset.X),Context.ConvertPixelsToDips(pixelOffset.Y));
+
+                            var renderContext = new RenderContext(Context, dipsOffset, updateRect);
 
                             await _renderer.DrawAsync(renderContext);
 

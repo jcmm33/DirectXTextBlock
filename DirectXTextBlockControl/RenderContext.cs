@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,7 @@ namespace DirectXTextBlockControl
 
         public void SetupOffset()
         {
-
+            Debug.WriteLine("SetupOffset {0},{1}",_pixelOffset.X,_pixelOffset.Y);
             DeviceContext.D2DContext.Transform = Matrix3x2.Translation(_pixelOffset.X, _pixelOffset.Y);
             _offsetSet = true;
         }
@@ -50,9 +51,6 @@ namespace DirectXTextBlockControl
         public void SetupClip()
         {
             var clipRect = new RectangleF(_pixelOffset.X, _pixelOffset.Y, _pixelUpdateRect.Width, _pixelUpdateRect.Height);
-
-
-            //            DeviceContext.D2DContext.PushAxisAlignedClip(clipRect,AntialiasMode.Aliased);
 
             _clipSet = true;
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
+using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -172,10 +173,24 @@ namespace DirectXTextBlockControl
             return false;
         }
 
+        private Size _currentSize;
+
+        /// <summary>
+        /// Store the arranged size for use when the text is rendered.
+        /// </summary>
+        /// <param name="finalSize"></param>
+        /// <returns></returns>
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            // 23/03/2015 - Store the final size for use in the renderer.
+            _currentSize = finalSize;
+            return base.ArrangeOverride(finalSize);
+        }
 
         protected virtual Windows.Foundation.Size GetSurfaceDimensions()
         {
-            return new Windows.Foundation.Size();
+           // 23/03/2015 - use the last size provided to ArrangeOverride
+           return _currentSize;
         }
 
         private void CompositionTarget_SurfaceContentsLost(object sender, object e)

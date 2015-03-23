@@ -375,7 +375,7 @@ namespace DirectXTextBlockControl
 
             // now, then, we need to adjust the available size by this amount
 
-            var rect = _effect.Measure(Context, availableSize.Width - extent, availableSize.Height - extent);
+            var rect = _effect.Measure(Context, double.IsInfinity(availableSize.Width)?availableSize.Width:availableSize.Width- extent, double.IsInfinity(availableSize.Height) ? availableSize.Height:availableSize.Height - extent);
 
             // now then, lets also consider the shadow we are going to apply
             // what should be do exactly ?
@@ -399,12 +399,6 @@ namespace DirectXTextBlockControl
             _renderedImage.Source = surfaceRenderer;
             _renderedImage.Width = dipsSize.Width;
             _renderedImage.Height = dipsSize.Height;
-        }
-
-        protected override Size GetSurfaceDimensions()
-        {
-            return new Size(Context.ConvertDipsToPixels(this.ActualWidth),
-                Context.ConvertDipsToPixels(this.ActualHeight));
         }
 
         protected override void RenderCompleted()
