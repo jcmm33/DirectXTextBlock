@@ -149,10 +149,10 @@ namespace DirectXTextBlockControl
         /// <summary>
         /// our cached components
         /// </summary>
-        private TextFormat _cachedTextFormat;
-        private Brush _cachedSceneColorBrush;
-        private TextLayout _cachedTextLayout;
-        private Bitmap _cachedRenderedBitmap;
+        //private TextFormat _cachedTextFormat;
+        //private Brush _cachedSceneColorBrush;
+        //private TextLayout _cachedTextLayout;
+        //private Bitmap _cachedRenderedBitmap;
 
 
         private Rect _logicalRect;
@@ -177,7 +177,7 @@ namespace DirectXTextBlockControl
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task DrawAsync(RenderContext context)
+        public void DrawAsync(RenderContext context)
         {
             //var logicalDipsRect = new RectangleF((float)_logicalRect.Left,
             //    (float)_logicalRect.Top,
@@ -196,20 +196,21 @@ namespace DirectXTextBlockControl
 
             _logicalRect = newRect;
 
-            var renderedTextBitmap = GetRender(context.DeviceContext);
-
-            context.BeginDraw();
-
-            using (var composite = new TextShadowEffect(this, renderedTextBitmap)
+            using (var renderedTextBitmap = GetRender(context.DeviceContext))
             {
-                ShadowOffset = (float)_shadowOffset,
-                ShadowColor = Shadow
-            })
-            {
-                composite.Render(context.DeviceContext);
+                context.BeginDraw();
+
+                using (var composite = new TextShadowEffect(this, renderedTextBitmap)
+                {
+                    ShadowOffset = (float) _shadowOffset,
+                    ShadowColor = Shadow
+                })
+                {
+                    composite.Render(context.DeviceContext);
+                }
+
+                context.EndDraw();
             }
-
-            context.EndDraw();
         }
 
         public void Reset(GraphicsDeviceContext gdc)
@@ -226,14 +227,12 @@ namespace DirectXTextBlockControl
         /// <Remarks>The rendered bitmap is cached</Remarks>
         private Bitmap GetRender(GraphicsDeviceContext gdc)
         {
-            if (_cachedRenderedBitmap != null) return _cachedRenderedBitmap;
-
-            _cachedRenderedBitmap = new Bitmap1(gdc.D2DContext, new Size2((int)gdc.ConvertDipsToPixels(_logicalRect.Width), (int)gdc.ConvertDipsToPixels(_logicalRect.Height)),
+            var renderedBitmap = new Bitmap1(gdc.D2DContext, new Size2((int)gdc.ConvertDipsToPixels(_logicalRect.Width), (int)gdc.ConvertDipsToPixels(_logicalRect.Height)),
                 new BitmapProperties1(new PixelFormat(Format.B8G8R8A8_UNorm, AlphaMode.Premultiplied), (float)gdc.LogicalDpi, (float)gdc.LogicalDpi, BitmapOptions.Target));
 
             var oldTarget = gdc.D2DContext.Target;
 
-            gdc.D2DContext.Target = _cachedRenderedBitmap;
+            gdc.D2DContext.Target = renderedBitmap;
 
             gdc.D2DContext.BeginDraw();
 
@@ -245,7 +244,7 @@ namespace DirectXTextBlockControl
 
             gdc.D2DContext.Target = oldTarget;
 
-            return _cachedRenderedBitmap;
+            return renderedBitmap;
         }
 
         /// <summary>
@@ -253,24 +252,6 @@ namespace DirectXTextBlockControl
         /// </summary>
         private void InvalidateRender()
         {
-            if (_cachedRenderedBitmap != null)
-            {
-                _cachedRenderedBitmap.Dispose();
-            }
-
-            if (_cachedTextFormat != null)
-            {
-                _cachedTextFormat.Dispose();
-            }
-
-            if (_cachedTextLayout != null)
-            {
-                _cachedTextLayout.Dispose();
-            }
-
-            _cachedRenderedBitmap = null;
-            _cachedTextFormat = null;
-            _cachedTextLayout = null;
         }
 
         /// <summary>
@@ -280,11 +261,7 @@ namespace DirectXTextBlockControl
         /// <returns></returns>
         public Brush GetForegroundSceneBrush(GraphicsDeviceContext context)
         {
-            if (_cachedSceneColorBrush != null) return _cachedSceneColorBrush;
-
-            _cachedSceneColorBrush = new SolidColorBrush(context.D2DContext, _foreground);
-
-            return _cachedSceneColorBrush;
+            return new SolidColorBrush(context.D2DContext, _foreground);
         }
 
         /// <summary>
@@ -292,10 +269,6 @@ namespace DirectXTextBlockControl
         /// </summary>
         private void InvalidateForegroundSceneBrush()
         {
-            if (_cachedSceneColorBrush == null) return;
-
-            _cachedSceneColorBrush.Dispose();
-            _cachedSceneColorBrush = null;
         }
 
         /// <summary>
@@ -305,10 +278,11 @@ namespace DirectXTextBlockControl
         /// <returns></returns>
         public TextLayout GetTextLayout(GraphicsDeviceContext context)
         {
-            var r = _cachedTextLayout ??
-                   (_cachedTextLayout = new TextLayout(context.FactoryDirectWrite, Text??"", GetTextFormat(context), (float)_logicalRect.Right, (float)_logicalRect.Bottom));
-
-            return r;
+            using (var format = GetTextFormat(context))
+            {
+                return new TextLayout(context.FactoryDirectWrite, Text ?? "", format, (float) _logicalRect.Right,
+                    (float) _logicalRect.Bottom);
+            }
         }
 
         /// <summary>
@@ -318,16 +292,15 @@ namespace DirectXTextBlockControl
         /// <returns></returns>
         public TextFormat GetTextFormat(GraphicsDeviceContext context)
         {
-            return _cachedTextFormat ??
-                   (_cachedTextFormat =
-                       new TextFormat(context.FactoryDirectWrite, _fontFamily, _fontWeight, _fontStyle, FontStretch,
+            return new TextFormat(context.FactoryDirectWrite, _fontFamily, _fontWeight, _fontStyle, FontStretch,
                            (float)_fontSize)
                        {
                            TextAlignment = this._textAlignment,
                            ParagraphAlignment = ParagraphAlignment.Near,
                            WordWrapping = this._wordWrapping,
 
-                       });
+                       }
+            ;
         }
 
 
@@ -340,11 +313,14 @@ namespace DirectXTextBlockControl
         /// <returns></returns>
         public Rect Measure(GraphicsDeviceContext gdc, double maxWidth, double maxHeight)
         {
-            var tt = new TextLayout(gdc.FactoryDirectWrite, Text ?? "", GetTextFormat(gdc), (float)maxWidth, (float)maxHeight);
+            using (var format = GetTextFormat(gdc))
+            {
+                var tt = new TextLayout(gdc.FactoryDirectWrite, Text ?? "", format, (float) maxWidth, (float) maxHeight);
 
-            var metrics = tt.Metrics;
+                var metrics = tt.Metrics;
 
-            return new Rect(0, 0, metrics.Width, metrics.Height);
+                return new Rect(0, 0, metrics.Width, metrics.Height);
+            }
         }
 
         protected Boolean IsDisposed = false;

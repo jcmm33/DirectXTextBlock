@@ -7,9 +7,8 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ui:DirectXTextBlock">
-                    <Canvas>
-                        <Image  x:Name="DirectXRenderImage">
-                        </Image>
+                    <Canvas x:Name="RenderCanvas">
+                        <Image x:Name="PooImage"></Image>
                     </Canvas>
                 </ControlTemplate>
             </Setter.Value>

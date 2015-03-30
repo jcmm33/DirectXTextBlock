@@ -74,7 +74,7 @@ namespace DirectXTextBlockControl
             get { return _isLoaded; }
         }
 
-        private XamlSurfaceRenderer _surfaceRenderer;
+        protected XamlSurfaceRenderer _surfaceRenderer;
 
         public IDirect2DRenderer Direct2DRenderer
         {
@@ -97,7 +97,7 @@ namespace DirectXTextBlockControl
         }
 
 
-        async void CompositionTarget_Rendering(object sender, object e)
+        void CompositionTarget_Rendering(object sender, object e)
         {
             if (!ShouldRender())
             {
@@ -109,7 +109,7 @@ namespace DirectXTextBlockControl
             _isRendering = true;
 
             // now then, this is our rendering opportunity
-            await Render();
+            Render();
 
             _isRendering = false;
         }
@@ -144,15 +144,15 @@ namespace DirectXTextBlockControl
             throw new NotImplementedException("Surface Creation must be implemented.");
         }
 
-        private async Task Render()
+        private void Render()
         {
             CreateRenderSurface();
 
             if (_surfaceRenderer != null && Direct2DRenderer != null)
             {
-                await PrepareForRender();
+                 PrepareForRender();
 
-                await _surfaceRenderer.Draw();
+                _surfaceRenderer.Draw();
 
                 RenderCompleted();
             }
@@ -163,7 +163,7 @@ namespace DirectXTextBlockControl
             return;
         }
 
-        protected async virtual Task PrepareForRender()
+        protected virtual void PrepareForRender()
         {
             return;
         }

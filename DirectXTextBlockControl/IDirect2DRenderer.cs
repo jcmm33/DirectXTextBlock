@@ -9,6 +9,6 @@ namespace DirectXTextBlockControl
     public interface IDirect2DRenderer
     {
         void Reset(GraphicsDeviceContext gdc);
-        Task DrawAsync(RenderContext renderContext);
+        void DrawAsync(RenderContext renderContext);
     }
 }

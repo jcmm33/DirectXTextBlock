@@ -9,6 +9,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using SharpDX;
+using SharpDX.Direct3D11;
 using SharpDX.DirectWrite;
 using Color = SharpDX.Color;
 using TextAlignment = Windows.UI.Xaml.TextAlignment;
@@ -204,6 +205,8 @@ namespace DirectXTextBlockControl
 
         private void QueueRender(Boolean forceMeasure = false)
         {
+            EnsureRenderImage();
+
             _renderRequired = true;
 
             if (forceMeasure)
@@ -222,7 +225,6 @@ namespace DirectXTextBlockControl
 
         public DirectXTextBlock()
         {
-            _renderedImage = new Image();
             DefaultStyleKey = typeof(DirectXTextBlock);
 
             SizeChanged += DirectXTextBlock_SizeChanged;
@@ -243,7 +245,48 @@ namespace DirectXTextBlockControl
             _foregroundChangeNotifier.ValueChanged += _foregroundChangeNotifier_ValueChanged;
 
             Direct2DRenderer = _effect;
+
+            this.Loaded += DirectXTextBlock_Loaded;
+            this.Unloaded += DirectXTextBlock_Unloaded;
         }
+
+        void DirectXTextBlock_Unloaded(object sender, RoutedEventArgs e)
+        {
+            ClearReaderImage();
+        }
+
+        void DirectXTextBlock_Loaded(object sender, RoutedEventArgs e)
+        {
+            EnsureRenderImage();
+        }
+
+        private Size _lastSize = new Size();
+
+        private void EnsureRenderImage()
+        {
+            if (_renderedImage == null)
+            {
+                if (_canvas != null)
+                {
+                    _renderedImage = new Image(){Width = _lastSize.Width,Height = _lastSize.Height};
+                    _canvas.Children.Add(_renderedImage);
+                }
+            }
+        }
+
+        private void ClearReaderImage()
+        {
+            if (_renderedImage != null)
+            {
+                _canvas.Children.Remove(_renderedImage);
+                //_lastSize.Width = _renderedImage.Width;
+                //_lastSize.Height = _renderedImage.Height;
+                _renderedImage.Source = null;
+                _surfaceRenderer = null;
+                _renderedImage = null;
+            }
+        }
+
 
         void DirectXTextBlock_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -272,7 +315,8 @@ namespace DirectXTextBlockControl
         {
             base.OnApplyTemplate();
 
-            _renderedImage = GetTemplateChild("DirectXRenderImage") as Image;
+            _canvas = GetTemplateChild("RenderCanvas") as Canvas;
+            //_renderedImage = GetTemplateChild("DirectXRenderImage") as Image;
 
             _effect.FontFamily = this.FontFamily.Source;
             _effect.FontSize = this.FontSize;
@@ -369,6 +413,8 @@ namespace DirectXTextBlockControl
 
         protected override Size MeasureOverride(Size availableSize)
         {
+            EnsureRenderImage();
+
             var fullPixelBlurIncrement = Context.ConvertDipsToPixels(BlurRadius * 6.0);
 
             var extent = Context.ConvertPixelsToDips(fullPixelBlurIncrement / 2) + this.ShadowOffset;
@@ -387,6 +433,7 @@ namespace DirectXTextBlockControl
         }
 
         private Boolean _renderRequired = true;
+        private Canvas _canvas;
 
 
         protected override bool ShouldRender()
@@ -396,6 +443,7 @@ namespace DirectXTextBlockControl
 
         protected override void SurfaceCreated(XamlSurfaceRenderer surfaceRenderer, Size dipsSize)
         {
+            EnsureRenderImage();
             _renderedImage.Source = surfaceRenderer;
             _renderedImage.Width = dipsSize.Width;
             _renderedImage.Height = dipsSize.Height;

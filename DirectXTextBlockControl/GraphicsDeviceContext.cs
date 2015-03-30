@@ -78,7 +78,6 @@ namespace DirectXTextBlockControl
 
                 if (DesignMode.DesignModeEnabled) return;
 
-
                 _d2DContext.DotsPerInch = new Size2F((float)LogicalDpi, (float)LogicalDpi);
                 _d2DContext.UnitMode = UnitMode.Dips;
             }

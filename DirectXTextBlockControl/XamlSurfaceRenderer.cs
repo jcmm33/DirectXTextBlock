@@ -29,11 +29,6 @@ namespace DirectXTextBlockControl
             CreateDeviceResources();
         }
 
-        public XamlSurfaceRenderer(IDirect2DRenderer renderer, Size2 pixelSize, Boolean isOpaque)
-            : this(new GraphicsDeviceContext(), renderer, pixelSize, isOpaque)
-        {
-        }
-
         public IDirect2DRenderer Renderer
         {
             get { return _renderer; }
@@ -66,14 +61,14 @@ namespace DirectXTextBlockControl
 
         }
 
-        public async Task Draw()
+        public void Draw()
         {
-            await Draw(new Rectangle(0, 0, _pixelSize.Width, _pixelSize.Height));
+            Draw(new Rectangle(0, 0, _pixelSize.Width, _pixelSize.Height));
         }
 
         private BitmapProperties _targetProperties;
 
-        public async Task Draw(Rectangle updateRect)
+        public void Draw(Rectangle updateRect)
         {
             //_renderer.BeginDraw(Context, updateRect);
 
@@ -138,7 +133,7 @@ namespace DirectXTextBlockControl
 
                             var renderContext = new RenderContext(Context, dipsOffset, updateRect);
 
-                            await _renderer.DrawAsync(renderContext);
+                            _renderer.DrawAsync(renderContext);
 
                             //_renderer.EndDraw(Context);
 
